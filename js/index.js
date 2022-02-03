@@ -1,311 +1,256 @@
-var curPageIndex = 0;
+//打开视频功能
 (function () {
-  // 当前显示的页面索引
+    var playBtn = document.querySelector('#section1 .play'),
+        dialog = document.querySelector('.dialog'),
+        shadow = document.querySelector('.shadow'),
+        colseBtn = document.querySelector('.colseBtn'),
+        movie = document.querySelector('.movie'),
+        movieInner = movie.innerHTML;
 
-  var pageContainer = $(".page-container");
-  var pageNumber = pageContainer.children.length; // 页面数量
-  // 设置页面容器的margin-top为合适的值
-  function toPage() {
-    // 让容器包含过渡效果
-    pageContainer.style.transition = "500ms";
-    // document.documentElement.clientHeight 屏幕高度
-    pageContainer.style.marginTop =
-      -curPageIndex * document.documentElement.clientHeight + "px";
-  }
-
-  toPage();
-
-  pageContainer.ontouchstart = function (e) {
-    var y = e.changedTouches[0].clientY; // 手指按下时的纵坐标
-    pageContainer.style.transition = "none";
-    // 按下后监听手指的移动
-    pageContainer.ontouchmove = function (e) {
-      var dis = e.changedTouches[0].clientY - y; // 计算距离
-      // 计算page-container的margin-top
-      var mtop = -curPageIndex * document.documentElement.clientHeight + dis;
-      if (mtop > 0) {
-        mtop = 0; // 最大值为0
-      } else if (
-        mtop <
-        -(pageNumber - 1) * document.documentElement.clientHeight
-      ) {
-        // 最小值
-        mtop = -(pageNumber - 1) * document.documentElement.clientHeight;
-      }
-      pageContainer.style.marginTop = mtop + "px";
+    playBtn.onclick = function () {
+        dialog.style.display = shadow.style.display = 'block';
+        movie.innerHTML = movieInner;
     };
-
-    // 按下后监听手指抬起
-    pageContainer.ontouchend = function (e) {
-      // 手指抬起后到按下的距离
-      var dis = e.changedTouches[0].clientY - y; // 计算距离
-      if (Math.abs(dis) <= 30) {
-        // 手指移动的不多
-        toPage(); // 回到当前正确的位置
-      } else if (dis > 0 && curPageIndex > 0) {
-        // 向下移动 并且 目前不是第一页
-        curPageIndex--;
-        toPage();
-      } else if (dis < 0 && curPageIndex < pageNumber - 1) {
-        // 向上移动 并且 目前不是最后一页
-        curPageIndex++;
-        toPage();
-      }
-
-      // 手指抬起后，取消监听移动和抬起
-      pageContainer.ontouchmove = null;
-      pageContainer.ontouchend = null;
+    colseBtn.onclick = function () {
+        dialog.style.display = shadow.style.display = 'none';
+        movie.innerHTML = '';
     };
-  };
 })();
 
-(async function () {
-  showLoading(); // 加载中
-  // 1. 获取远程数据
-  var resp = await fetch(
-    `https://bless.yuanjin.tech/api/bless?id=${location.search.replace(
-      "?",
-      ""
-    )}`
-  );
-  resp = await resp.json();
-  resp = resp.data;
-  console.log(resp);
-  // 2. 根据远程数据，设置页面中的各种区域
-  (function () {
-    // 第一页
-    $(".page1 .g-btn").innerText = `来自「${resp.author}」的祝福`;
-    // 第二页
-    var pre = $(".page2 .note pre");
-    pre.innerText = resp.content;
-    // 看一下，内容部分是否有滚动条
-    if (pre.clientHeight !== pre.scrollHeight) {
-      // 有滚动条
-      // 不能阻止默认行为
-      pre.dataset.default = true;
-      // 阻止事件冒泡
-      pre.ontouchstart = function (e) {
-        e.stopPropagation();
-      };
-    }
-    // 看一下，有没有录音
-    if (resp.audioUrl) {
-      // 设置音频
-      $("#soundAudio").src = resp.audioUrl;
-    } else {
-      // 没有录音
-      $(".page2 .g-tape").remove();
-      $(".page2 .g-btn").remove();
-      $(".page2 .note").style.top = "1rem";
-    }
-    // 设置背景音乐的音频
-    $("#bgMusicAudio").src = `./assets/media/${resp.bgMusicIndex}.mp3`;
-  })();
+//选项卡
+(function () {
+    function tab(btn, content) {
+        var btns = btn.children;  //获取到第一层的子元素
+        var cons = content.children;
 
-  // 3. 实现摇一摇
-  (function () {
-    /**
-     * 启用摇一摇事件
-     * 由于某些手机的限制，该方法必须在某个元素点击后调用
-     **/
-    async function regShakenEvent() {
-      try {
-        await utils.regShakenEvent(); // 启用摇一摇
-      } catch (err) {
-        /*
-         * 不支持devicemotion事件的手机
-         * 或
-         * 用户不允许监听设备运动
-         */
-        alert("由于权限问题，无法使用摇一摇功能");
-      }
+        for (var i = 0; i < btns.length; i++) { //循环的是所有的按钮
+            btns[i].index = i;    //给每一个按钮身上添加一个索引值
+            btns[i].onclick = function () {
+                //让别的元素身上的active去掉，让别的元素对应的内容隐藏
+                for (var i = 0; i < btns.length; i++) { //循环所有元素
+                    //classList取到元素身上的所有class(集合对象)
+                    btns[i].classList.remove('active');
+                    cons[i].classList.remove('active');
+                }
+
+                //让自己身上加上active，让自己对应的内容显示
+                this.classList.add('active');
+                cons[this.index].classList.add('active');
+            }
+        }
     }
 
-    $(".page3 .g-modal .g-btn").onclick = function () {
-      regShakenEvent();
-      $(".page3 .g-modal").remove();
-    };
+    var tabBtns = document.querySelectorAll('.tabBtn');    //取到页面里所有的按钮的父级（3个）
+    var tabContents = document.querySelectorAll('.tabContent');    //取到页面里所有的内容（3个）
 
-    window.addEventListener("shaken", function () {
-      showBlessCard();
-    });
-
-    // 弹出祝福卡片
-    function showBlessCard() {
-      if (curPageIndex !== 2) {
-        // 只有第3页才能弹出卡片
-        return;
-      }
-      var divModal = $("#divBlessCard");
-      if (divModal) {
-        // 先关闭
-        closeBelssCard();
-        // 再打开
-        setTimeout(_showBlessCard, 500);
-      } else {
-        _showBlessCard();
-      }
-
-      function _showBlessCard() {
-        var divModal = $$$("div");
-        divModal.id = "divBlessCard";
-        divModal.className = "g-modal";
-        divModal.innerHTML = `
-      <div class="bless-card">
-        <img src="./assets/bless-card/${Math.floor(
-          Math.random() * 7
-        )}.png" alt="" />
-        <div class="g-seal"></div>
-        <div class="close">
-          <div class="close-btn"></div>
-        </div>
-      </div>`;
-        var blessCard = divModal.querySelector(".bless-card");
-        blessCard.style.transition = "500ms";
-        document.body.appendChild(divModal);
-        blessCard.style.transform = "scale(0)";
-        blessCard.clientHeight; // 强行让浏览器渲染一次 reflow
-        blessCard.style.transform = "scale(1)";
-
-        // 播放摇一摇音频
-        var aud = $("#shakenAudio");
-        aud.currentTime = 0; // 播放进度归零
-        aud.play();
-
-        divModal.dataset.default = true;
-        divModal.onclick = closeBelssCard;
-
-        divModal.querySelector(".close-btn").dataset.default = true;
-      }
+    for (var i = 0; i < tabBtns.length; i++) {
+        tab(tabBtns[i], tabContents[i]);
     }
-
-    // 关闭祝福卡片
-    function closeBelssCard() {
-      var divModal = $("#divBlessCard");
-      if (!divModal) {
-        return; // 之前都没有弹出
-      }
-      //1. 先缩小
-      var blessCard = divModal.querySelector(".bless-card");
-      blessCard.style.transform = "scale(0)";
-      //2. 再关闭
-      setTimeout(function () {
-        divModal.remove();
-      }, 500);
-    }
-  })();
-
-  // 4. 控制声音
-  // 背景音乐
-  var bgMusic = {
-    audio: $("#bgMusicAudio"),
-    isPlayed: false, // 是否播放过
-    // 播放音乐
-    play: async function () {
-      try {
-        await this.audio.play();
-        this.isPlayed = true; // 已经播放过了
-      } catch {
-        alert("你的浏览器不支持自动播放\n你可以点击右上角的按钮手动播放");
-      }
-    },
-    // 暂停
-    pause: function () {
-      this.audio.pause();
-    },
-    // 设置音量
-    setVolume: function (value) {
-      this.audio.volume = value;
-    },
-  };
-
-  // 祝福语音
-  var sound = {
-    audio: $("#soundAudio"),
-    isPlayed: false, // 是否播放过
-    play: function () {
-      this.audio.play();
-      this.isPlayed = true;
-      // 设置背景音乐的音量小一点
-      bgMusic.setVolume(0.3);
-      // 播放语音时，有可能顺带播放背景音乐
-      if (!bgMusic.isPlayed) {
-        bgMusic.play();
-      }
-    },
-    pause: function () {
-      this.audio.pause();
-      bgMusic.setVolume(1);
-    },
-  };
-
-  // 将与声音相关的所有元素设置为正确的状态
-  function setElementStatus() {
-    // 设置右上角元素的状态
-    if (bgMusic.audio.paused) {
-      // 音乐暂停，添加类样式 music-close
-      $(".music").classList.add("music-close");
-    } else {
-      // 音乐正在播放
-      $(".music").classList.remove("music-close");
-    }
-    if (!resp.audioUrl) {
-      return;
-    }
-    // 设置磁带的状态
-    if (sound.audio.paused) {
-      // 语音没有播放
-      $(".page2 .g-tape").classList.remove("playing");
-    } else {
-      $(".page2 .g-tape").classList.add("playing");
-    }
-    // 按钮文字
-    var btn = $(".page2 .g-btn");
-    if (sound.isPlayed) {
-      if (sound.audio.paused) {
-        // 当前声音是暂停的
-        btn.innerText = "播放";
-      } else {
-        btn.innerText = "暂停";
-      }
-    } else {
-      // 从来没有播放过语音
-      btn.innerText = "播放祝福语音";
-    }
-  }
-
-  bgMusic.play(); // 最开始，播放背景音乐
-  setElementStatus(); // 设置状态
-
-  $(".music").onclick = function () {
-    if (bgMusic.audio.paused) {
-      bgMusic.play();
-    } else {
-      bgMusic.pause();
-    }
-    setElementStatus();
-  };
-  if (resp.audioUrl) {
-    $(".page2 .g-btn").onclick = function () {
-      if (sound.audio.paused) {
-        sound.play();
-      } else {
-        sound.pause();
-      }
-      setElementStatus();
-    };
-  }
-
-  sound.audio.onended = function () {
-    setElementStatus();
-    $(".page2 .g-btn").innerText = "重新播放";
-  };
-
-  // 我也要送祝福 事件
-  $(".page3 .g-btn").onclick = function () {
-    // 跳转页面
-    location.href = `bless.html?${location.search.replace("?", "")}`;
-  };
-
-  hideLoading(); // 关闭加载
 })();
+
+//轮播图
+(function () {
+    function carousel(id) {
+        var wrap = document.querySelector(id + ' .wrap'),
+            ul = document.querySelector(id + ' ul'),
+            prev = document.querySelector(id + ' .prev'),
+            next = document.querySelector(id + ' .next'),
+            circles = document.querySelectorAll(id + ' .circle span'),
+            boxWidth = wrap.offsetWidth,  //一个轮播图的宽
+            canclick = true;  //是否能进行下次点击，能（true），不能（false）
+        timer = null;
+
+        //初始化
+        ul.innerHTML += ul.innerHTML;
+        var len = ul.children.length; //子元素的数量
+        ul.style.width = len * boxWidth + 'px';
+
+        var cn = 0;   //当前的索引值
+        var ln = 0;   //上一个的索引值
+
+        next.onclick = function () {
+            if (!canclick) {
+                //这个条件成立说明 现在不能点击
+                return;
+            }
+
+            cn++;
+            move();
+        }
+
+        prev.onclick = function () {
+            if (!canclick) {
+                //这个条件成立说明 现在不能点击
+                return;
+            }
+
+            if (cn == 0) {
+                cn = len / 2;
+                ul.style.transition = null;
+                ul.style.transform = 'translateX(' + -cn * boxWidth + 'px)';
+            }
+
+            setTimeout(function () {
+                //transition的值会被mover里给覆盖了，所以我让它俩不是同时执行，借助定时器
+                cn--;
+                move();
+            }, 16);
+        }
+
+        for (var i = 0; i < circles.length; i++) {
+            circles[i].index = i;
+            circles[i].onclick = function () {
+                if (!canclick) {
+                    //这个条件成立说明 现在不能点击
+                    return;
+                }
+
+                cn = this.index;
+                move();
+            }
+        }
+
+        function move() {
+            canclick = false; //运动正在走，不让用户点击
+
+            //console.log(cn);
+            ul.style.transition = '.3s';
+            ul.style.transform = 'translateX(' + -cn * boxWidth + 'px)';
+
+            /*
+                同步圆点
+                cn:0 1 2 3 4 5 6 7
+                hn:0 1 2 3 0 1 2 3
+
+             */
+
+            var hn = cn % (len / 2);
+            circles[ln].className = '';
+            circles[hn].className = 'active';
+            ln = hn;    //当前次的索引相对于下一次的点击就是上一次的索引
+            //相对于下一次的点击，上一次就是当前
+        }
+
+        ul.addEventListener('transitionend', function () { //过渡完成后就会触发的事件
+            // console.log(1);
+            if (cn == len / 2) {  //当第4个索引对应的图片运动完了，要把ul拉回原点，才能做到无缝滚动
+                // console.log(12);
+                ul.style.transition = null;
+                cn = 0;
+                ul.style.transform = 'translateX(' + -cn * boxWidth + 'px)';
+            }
+
+            canclick = true;  //运动走完了，让用户可以再次点击 
+        });
+
+        timer = setInterval(next.onclick, 3000);
+
+        //浏览器tab页面切换、浏览器缩小的时候，浏览器为了节约资源会把运动给停掉，但是定时器依然在走。造成了不同步的问题，还有可能cn走超了等等。以下就是解决这个问题
+        window.onblur = function () {
+            //页面隐藏了
+            clearInterval(timer);
+        };
+        window.onfocus=function(){
+            //页面打开了
+            timer = setInterval(next.onclick, 3000);
+        }
+
+        //第二个解决方法，使用visibilitychange事件
+        /* document.addEventListener('visibilitychange',function(){
+            if(document.visibilityState === 'hidden' ){
+                //页面隐藏了，清除动画
+                clearInterval(timer);
+            }else{
+               //页面打开了
+               timer = setInterval(next.onclick, 3000);
+            }
+        }); */
+
+    }
+
+    carousel('#section3');
+    carousel('#section5');
+})();
+
+/* 新增场景 */
+(function () {
+    var section4 = document.querySelector('#section4');
+    var lis = document.querySelectorAll('#section4 li');
+    var bottom = document.querySelector('#section4 .bottom');
+    var ln = 0;
+
+    for (var i = 0; i < lis.length; i++) {
+        lis[i].index = i;
+        lis[i].onclick = function () {
+            lis[ln].classList.remove('active');
+            this.classList.add('active');
+
+            section4.style.background = 'url(images/section4_big_0' + (this.index + 1) + '.png) no-repeat center top';
+            bottom.style.background = 'url(images/section4_big_0' + (this.index + 1) + '_bottom.png) no-repeat center top';
+
+            ln = this.index;
+        };
+    }
+})();
+
+//手风琴
+(function () {
+    var lis = document.querySelectorAll('#section7 li');
+    var ln = 0;
+
+    for (var i = 0; i < lis.length; i++) {
+        lis[i].index = i;
+        lis[i].onclick = function () {
+            lis[ln].classList.remove('active');
+            this.classList.add('active');
+
+            ln = this.index;
+        };
+    }
+})();
+
+/* 游戏特色轮播图 */
+(function () {
+    var ul = document.querySelector('#section8 ul'),
+        lis = ul.children,
+        prev = document.querySelector('#section8 .prev'),
+        next = document.querySelector('#section8 .next'),
+        spans = document.querySelectorAll('#section8 .circle span'),
+        cn = 0,
+        ln = 0;
+
+    next.onclick = function () {
+        cn++;
+        cn %= lis.length;
+
+        //注意：li:nth-child(3)原来是用right定位，样式里已经改成了left定位
+        ul.appendChild(lis[0]);
+
+        spans[ln].className = '';
+        spans[cn].className = 'active';
+
+        ln = cn;
+    }
+
+    prev.onclick = function () {
+        cn--;
+        if (cn < 0) {
+            cn = lis.length - 1;
+        }
+
+        //把最后一个元素插入到第0个元素的前面
+        ul.insertBefore(lis[lis.length - 1], lis[0]);
+
+        lis[0].style.opacity=0;
+        setTimeout(function(){
+            lis[0].style.opacity='';
+        });
+
+        spans[ln].className = '';
+        spans[cn].className = 'active';
+
+        ln = cn;
+    }
+})();
+/* 祝各位小伙伴，学业有成，拿到自己心仪的offer! */
+
