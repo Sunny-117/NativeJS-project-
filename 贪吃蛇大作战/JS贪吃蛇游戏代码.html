@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <canvas
+      id="can"
+      width="400"
+      height="400"
+      style="background: Black"
+    ></canvas>
+    <script>
+      var sn = [42], //蛇的起始位
+        dz = 43, //方块出现的位置
+        fx = 1, //方向值
+        n, //方向确定后的布值
+        ctx = document.getElementById("can").getContext("2d");
+
+      /**
+       * c：颜色
+       * */
+
+      function draw(t, c) {
+        ctx.fillStyle = c;
+        //console.log(t);
+        //console.log(t%20*20+1);
+
+        //t%20*20+1 是规范化到一个具体的格式为 x方向
+        //~~(t/20)*20+1 在Y轴方向上取整具体化到固定位置
+        // ~~取整
+        ctx.fillRect((t % 20) * 20 + 1, ~~(t / 20) * 20 + 1, 18, 18);
+      }
+
+      document.onkeydown = function (e) {
+        // console.log( 5 && 4 );//当结果为真时，返回第二个为真的值4
+        // console.log( 0 && 4 );//当结果为假时，返回第一个为假的值0
+        // console.log( 5 || 4 );//当结果为真时，返回第一个为真的值5
+        // console.log( 0 || 0 );//当结果为假时，返回第二个为假的值0
+
+        console.log("(e||event).keyCode:" + (e || event).keyCode);
+        console.log((e || event).keyCode - 37);
+        console.log((n = [-1, -20, 1, 20][(e || event).keyCode - 37] || fx));
+        console.log(fx);
+        fx =
+          sn[1] - sn[0] ==
+          (n = [-1, -20, 1, 20][(e || event).keyCode - 37] || fx)
+            ? fx
+            : n;
+        console.log("n:" + n);
+        console.log("fx:" + fx);
+      };
+
+      //!function 将函数声明变为函数表达式
+      !(function () {
+        //unshift：向数组开头插入一个元素
+        sn.unshift((n = sn[0] + fx));
+
+        if (
+          sn.indexOf(n, 1) > 0 ||
+          n < 0 ||
+          n > 399 ||
+          (fx == 1 && n % 20 == 0) ||
+          (fx == -1 && n % 20 == 19)
+        ) {
+          console.log(n);
+          return alert("GAME OVER");
+        }
+
+        draw(n, "Lime");
+        if (n == dz) {
+          math = Math.random() * 400;
+          //console.log("math:"+math);
+          //console.log("math:"+~~(math));//向下取整
+          //console.log("sn.indexOf:"+sn.indexOf(dz=~~(math)));
+          //console.log("dz:"+dz);
+
+          while (sn.indexOf((dz = ~~math)) >= 0); //如果点出现在蛇身上就重新选点
+
+          draw(dz, "Yellow");
+        }
+        // 没吃到，说明在移动，变黑
+        //pop：删除并返回数组的最后一个元素
+        else draw(sn.pop(), "Black");
+        setTimeout(arguments.callee, 130);
+      })();
+    </script>
+  </body>
+</html>

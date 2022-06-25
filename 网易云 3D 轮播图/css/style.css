@@ -1,0 +1,86 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+.banner {
+  width: 100%;
+  margin-top: 100px;
+  position: relative;
+}
+
+.pic-list {
+  list-style: none;
+  width: 1200px;
+  height: 300px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.pic-list li {
+  position: absolute;
+  transform: translate3d(225px, 0, 0) scale(0.8);
+  transition: all .3s ease-out;
+  opacity: 0;
+}
+
+.pic-list li img{
+  width: 750px;
+  height: 300px;
+  display: block;
+}
+
+.inspectors {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+}
+
+.inspectors  span{
+  width: 30px;
+  height: 20px;
+  display: inline-block;
+  border-top: 3px solid orange;
+  cursor: pointer;
+}
+
+.inspectors span.active{
+  border-top: 3px solid red;
+}
+
+.pic-list li.first-layer {
+  transform: translate3d(225px, 0, 0) scale(1);
+  z-index: 3;
+  box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.3);
+  opacity: 1;
+}
+
+.pic-list li.second-layer-left {
+  transform: translate3d(0, 0, 0) scale(0.8);
+  transform-origin: left center;
+  opacity: .8;
+  z-index: 2;
+}
+
+.pic-list li.second-layer-right {
+  transform: translate3d(600px, 0, 0) scale(0.8);
+  transform-origin: left center;
+  z-index: 2;
+  opacity: .8;
+}
+
+.bg{
+  width: 100%;
+  height: 300px;
+  background-image: url(../images/1.jpg);
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px);
+  opacity: .8;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: all .3s;
+}
