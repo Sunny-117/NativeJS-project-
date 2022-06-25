@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画板签名</title>
+    <style>
+         #a {
+            display: block;
+            margin: 0 auto;
+            border:3px solid;
+            cursor:url('pencil.png'),auto;
+        }
+        h1 {
+            text-align:center;
+        }
+        .operation {
+            margin: 0 auto;
+            width: 400px;
+            height: 100px;
+        }
+        .operation ul {
+            list-style:none;
+            
+        }
+        ul li {
+            margin-top: 6px;
+        }
+        li.range {
+            padding-left: 44px;
+        }
+        li.color {
+            padding-left: 97px;
+        }
+        #rangeValue {
+            vertical-align: super;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+		<h1>电子签名</h1>
+		<div class="operation">
+		  <ul>
+		      <li>
+		        <label>画笔样式</label>
+				<select id="type">
+					<option value="arc">圆形笔刷</option>
+					<option value="rect">矩形笔刷</option>
+				</select> 
+			</li>
+			<li class="range">
+			<label>画笔大小</label>
+			<input id="rangeInput" type="range" min="1" max="50" value="25">
+			<span id="rangeValue">25</span>
+			</li>
+			<li class="color">
+			<label>画笔颜色</label>
+			<input id="colorInput" type="color">
+			</li>
+			</ul>
+		</div>
+		<canvas id="a" width="600px" height="600px"></canvas>
+		<button id="translate">Translate</button>   
+        <img id="canvasImg">
+    </div>
+    <script>
+        var ctx;
+        var x;
+        var y;
+        var a;
+        var dragFlag = false;
+        var rangeInput,colorInput,type;
+
+        //圆形笔绘制
+        function circle(x,y,r,color){
+            ctx.beginPath();//canvas的绘制开始函数
+            ctx.arc(x,y,r,0,Math.PI*2,true);//画圆动作
+            ctx.closePath();//绘制当前点到开始点的路径（圆心之间的连线）
+            ctx.fillStyle = color;//填充closePath路径的颜色
+            ctx.fill();//内存绘制
+        }
+
+        //矩形绘制
+        function drawRect(x,y,w,h,color){
+            ctx.beginPath();
+            ctx.rect(x,y,w,h);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        //初始化方法
+        function init(){
+            // 获取HTML-Dom对象
+            var canvas = document.getElementById("a");
+            //对全局变量的赋值，非定义
+            rangeInput = document.getElementById("rangeInput");
+            colorInput = document.getElementById("colorInput");
+            type = document.getElementById("type");
+
+            //点击事件
+            rangeInput.addEventListener("change",changeRange); 
+            document.getElementById("translate").addEventListener("click",translate);
+            
+            //canvas内容对象获取(contest上下文)
+            ctx = canvas.getContext("2d");
+            
+            //鼠标事件
+            canvas.addEventListener("mousemove",mousemove);
+            canvas.addEventListener("mousedown",mousedown);
+            canvas.addEventListener("mouseup",mouseup);
+        }
+
+        //保存为图片
+        function translate(e){
+            document.getElementById("canvasImg").src = ctx.canvas.toDataURL();//讲canvas的绘制转换为图像格式
+        }
+
+        //画笔大小的改变事件
+        function changeRange(e){
+            var range = e.currentTarget.value//获取滑块的值
+            document.getElementById("rangeValue").innerHTML = range;
+        }
+
+        //鼠标的事件（按下）
+        function mousedown(e){
+            dragFlag = true;
+        }
+
+        //鼠标的事件（释放）
+        function mouseup(e){
+            dragFlag = false;
+        }
+
+        //移动
+        function mousemove(e){
+            //获得落点位置
+            var rect = e.currentTarget.getBoundingClientRect();//获取元素相对于视窗的位置
+            //根据位置定坐标Json
+            var gravityPoint = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+            x = gravityPoint.x;
+            y = gravityPoint.y;
+            //判断是否鼠标被按下
+            if(dragFlag){
+                //判断显示是矩形笔还是圆形笔
+                if(type.value === "arc"){
+                    //画（调用绘制圆形函数）
+                    circle(x,y,rangeInput.value,colorInput.value);
+                }else{
+                    //画（调用矩形函数）
+                    drawRect(x,y,rangeInput.value,rangeInput.value,colorInput.value);
+                }
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

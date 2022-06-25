@@ -1,0 +1,101 @@
+:root {
+  /* root相当于选中当前页面的根标签，等同于html，比html优先级要大,定义全局变量：必须以两个横线开头，使用方式：var关键字开头，传递变量名称 */
+  --fontColor: #4d5974;
+  --boxBottomBd: #e5e5e5;
+  --btnColor: #7288a2;
+  --btnHoverColor: #03b5d2;
+}
+* {
+  box-sizing: border-box;
+}
+*::before,
+*::after {
+  /* 选中所有标签的伪元素 */
+  box-sizing: border-box;
+}
+body {
+  color: var(--fontColor);
+}
+h2 {
+  text-align: center;
+}
+.main {
+  /* border和outline会默认使用当前字体的颜色 */
+  /* outline: 1px dashed; */
+  width: 48rem;
+  padding: 4rem;
+  margin: 0 auto;
+}
+.accordion .box {
+  /* outline: 1px dashed red; */
+  border-bottom: 1px solid var(--boxBottomBd);
+}
+.accordion .box .btn {
+  width: 100%;
+  text-align: left;
+  padding: 1em 0;
+  color: var(--btnColor);
+  font-size: 1.15rem;
+  border: none;
+  background: none;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+}
+.accordion .box .btn:hover {
+  color: var(--btnHoverColor);
+}
+.accordion .box .btn span.title {
+  /* background-color: red; */
+  padding: 1em 0;
+}
+.accordion .box .btn span.icon {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 1px solid;
+  border-radius: 11px;
+  /* 左上角、右上角、右下角、左下角 */
+  /* border-radius: 20px 40px 80px 120px / 60px 30px 110px 30px; */
+  /* border-top-left-radius: 33px 66px; */
+  position: absolute;
+  right: 0;
+  top: 18px;
+}
+.accordion .box .btn span.icon::before {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 2px;
+  background-color: currentColor;
+  left: 5px;
+  top: 9px;
+}
+.accordion .box .btn span.icon::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 10px;
+  top: 5px;
+  left: 9px;
+  background-color: currentColor;
+}
+.accordion .content p {
+  font-weight: 300;
+  margin: 2em 0;
+}
+.accordion .content {
+  height: 0;
+  overflow: hidden;
+  transition: height .5s;
+}
+.accordion .box .btn[singleExpanded='true'] {
+  color: var(--btnHoverColor);
+  border-bottom: 1px solid;
+}
+.accordion .box .btn[singleExpanded='true'] span.icon::after {
+  width: 0;
+}
+.accordion .box .btn[singleExpanded='true'] + .content {
+  height: 9em;
+}

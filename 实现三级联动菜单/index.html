@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+
+<body>
+    <div class="city-container">
+        <div class="title">请选择所在地区</div>
+        <div class="input-container clear">
+            <div class="level">
+                <img src="./img/province.png" alt="">
+                <span id="provinceTxt" class="txt">请选择省份</span>
+            </div>
+            <div class="level">
+                <img src="./img/city.png" alt="">
+                <span id="cityTxt" class="txt">请选择城市</span>
+            </div>
+            <div class="level">
+                <img src="./img/area.png" alt="">
+                <span id="areaTxt" class="txt">请选择地区</span>
+            </div>
+        </div>
+        <div class="main">
+            <div class="nav-container">
+                <span id="province" class="nav-item active">省份</span>
+                <span id="city" class="nav-item">城市</span>
+                <span id="area" class="nav-item">区县</span>
+            </div>
+            <div id="provinceContent" class="content">
+                <!-- <span class="city-list">北京市</span> -->
+            </div>
+            <div id="cityContent" class="content">
+                <!-- <span class="city-list">北京市</span> -->
+            </div>
+            <div id="areaContent" class="content">
+                <!-- <span class="city-list">北京市</span> -->
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/city.js"></script>
+    <script src="./js/index.js"></script>
+</body>
+
+</html>
